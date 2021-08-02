@@ -43,6 +43,10 @@ const applyTags = () => {
 };
 
 const addTagsToUsernames = () => {
+    if (checkVideosInViewport()){
+      console.warn('videos are visible; waiting');
+      return;
+    }
     findUsernames(document);
     if (usernames.size) {
       applyTags(document);
@@ -66,6 +70,18 @@ function handleSubtreeModifications(){
   }, 10);
 }
 
+const checkVideosInViewport = () => {
+  // check if a video is in the viewport.
+  // If videos are in viewport, DOMSubtreeModification event fires every second or so,
+  // and our script executes way more than it needs to
+  const videos = Array.from(document.querySelectorAll('video'));
+  const videosInViewport = videos.some(video => {
+    const rect = video.getBoundingClientRect();
+    const isInViewport = rect.top >= 0 && rect.bottom <= (window.innerHeight)
+    return isInViewport;
+  })
+  return videosInViewport;
+}
 
 const init = () => {
   // call the initial DOM update to add tags
